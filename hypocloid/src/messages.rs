@@ -6,10 +6,7 @@ use warp::{http::Response, reply::Reply, Filter};
 pub mod handlers {
     use super::*;
 
-    pub async fn query(
-        query: String,
-        _: Arc<HypoState>,
-    ) -> Result<impl warp::Reply, Infallible> {
+    pub async fn query(query: String, _: Arc<HypoState>) -> Result<impl warp::Reply, Infallible> {
         use std::process::Command;
         debug!("messages: {}", query);
 
@@ -31,7 +28,8 @@ pub mod handlers {
         match messages {
             Ok(messages) => Ok(Response::builder()
                 .header("Content-Type", "application/json")
-                .body(messages.stdout).into_response()),
+                .body(messages.stdout)
+                .into_response()),
             Err(_) => Ok(warp::http::StatusCode::BAD_REQUEST.into_response()),
         }
     }
@@ -46,7 +44,11 @@ pub mod handlers {
 
         let data = std::str::from_utf8(&command).unwrap();
 
-        let messages = Command::new("notmuch").arg("tag").arg(data).arg(query).output();
+        let messages = Command::new("notmuch")
+            .arg("tag")
+            .arg(data)
+            .arg(query)
+            .output();
 
         match messages {
             Ok(messages) => Ok(Response::builder()
